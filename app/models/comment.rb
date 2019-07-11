@@ -126,9 +126,12 @@ class Comment < ApplicationRecord
   # email all users in this thread
   # plus all who've starred it
   def notify(current_user)
+    ActionCable.server.broadcast 'room_channel', message: 'checkpoint 3'
     if status == 4
+      ActionCable.server.broadcast 'room_channel', message: 'checkpoint 4'
       AdminMailer.notify_comment_moderators(self).deliver_now
     else
+      ActionCable.server.broadcast 'room_channel', message: 'checkpoint 5'
       # if parent.uid != current_user.uid && !UserTag.exists?(parent.uid, 'notify-comment-direct:false')
       #   CommentMailer.notify_note_author(parent.author, self).deliver_now
       # end
@@ -136,7 +139,9 @@ class Comment < ApplicationRecord
       # notify_callout_users
 
       # Send Browser Notification Using Action Cable
+      ActionCable.server.broadcast 'room_channel', message: 'checkpoint 6'
       send_browser_notification
+      ActionCable.server.broadcast 'room_channel', message: "checkpoint 11"
 
       # # notify other commenters, revisers, and likers, but not those already @called out
       # already = mentioned_users.collect(&:uid) + [parent.uid]
@@ -149,6 +154,7 @@ class Comment < ApplicationRecord
   end
 
   def send_browser_notification
+    ActionCable.server.broadcast 'room_channel', message: 'checkpoint 7'
     notification = Hash.new
     notification[:title] = "New Comment on #{parent.title}"
     notification[:path] = parent.path
@@ -157,9 +163,12 @@ class Comment < ApplicationRecord
       icon: "https://publiclab.org/logo.png"
     }
     notification[:option] = option
+    ActionCable.server.broadcast 'room_channel', message: "checkpoint 8 #{uids_to_notify}"
     uids_to_notify.each do |uid|
+      ActionCable.server.broadcast 'room_channel',message: "checkpoint 9 #{User.find(uid).name}"
       ActionCable.server.broadcast "users:notification:#{uid}", notification: notification
     end
+    ActionCable.server.broadcast 'room_channel', message: "checkpoint 10"
   end
 
   def spam

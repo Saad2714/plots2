@@ -591,6 +591,7 @@ class Node < ActiveRecord::Base
   # Automated constructors for associated models
 
   def add_comment(params = {})
+    ActionCable.server.broadcast 'room_channel', message: 'checkpoint 1'
     thread = !comments.empty? && !comments.last.nil? ? comments.last.next_thread : '01/'
     comment_via_status = params[:comment_via].nil? ? 0 : params[:comment_via].to_i
     user = User.find(params[:uid])
