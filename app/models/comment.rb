@@ -129,22 +129,22 @@ class Comment < ApplicationRecord
     if status == 4
       AdminMailer.notify_comment_moderators(self).deliver_now
     else
-      if parent.uid != current_user.uid && !UserTag.exists?(parent.uid, 'notify-comment-direct:false')
-        CommentMailer.notify_note_author(parent.author, self).deliver_now
-      end
+      # if parent.uid != current_user.uid && !UserTag.exists?(parent.uid, 'notify-comment-direct:false')
+      #   CommentMailer.notify_note_author(parent.author, self).deliver_now
+      # end
 
-      notify_callout_users
+      # notify_callout_users
 
       # Send Browser Notification Using Action Cable
       send_browser_notification
 
-      # notify other commenters, revisers, and likers, but not those already @called out
-      already = mentioned_users.collect(&:uid) + [parent.uid]
-      uids = uids_to_notify - already
-      uids = uids.select { |i| i != 0 } # remove bad comments (some early ones lack uid)
-
-      notify_users(uids, current_user)
-      notify_tag_followers(already + uids)
+      # # notify other commenters, revisers, and likers, but not those already @called out
+      # already = mentioned_users.collect(&:uid) + [parent.uid]
+      # uids = uids_to_notify - already
+      # uids = uids.select { |i| i != 0 } # remove bad comments (some early ones lack uid)
+      #
+      # notify_users(uids, current_user)
+      # notify_tag_followers(already + uids)
     end
   end
 
