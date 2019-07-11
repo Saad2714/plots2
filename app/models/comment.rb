@@ -158,9 +158,7 @@ class Comment < ApplicationRecord
     }
     notification[:option] = option
     uids_to_notify.each do |uid|
-      if UserTag.where(value: 'notifications:all', uid: uid).any?
-        ActionCable.server.broadcast "users:notification:#{uid}", notification: notification
-      end
+      ActionCable.server.broadcast "users:notification:#{uid}", notification: notification
     end
   end
 
